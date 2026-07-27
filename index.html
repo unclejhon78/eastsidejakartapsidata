@@ -4,19 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal Keanggotaan PSI Jakarta Timur</title>
+  <!-- Google Fonts & Font Awesome Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
     :root {
-      --primary: #0d6efd;
+      --primary-color: #0d6efd;
       --bg-color: #f4f6f9;
       --card-bg: #ffffff;
-      --border: #e9ecef;
-      --text: #212529;
+      --text-dark: #212529;
+      --text-muted: #6c757d;
+      --border-color: #e9ecef;
     }
+
     * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
-    body { background-color: var(--bg-color); color: var(--text); }
+    body { background-color: var(--bg-color); color: var(--text-dark); }
 
     /* LAYAR LOGIN */
     .login-wrapper {
@@ -24,138 +27,261 @@
     }
     .login-card {
       background: #fff; padding: 32px; border-radius: 12px; width: 100%; max-width: 400px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid var(--border-color);
     }
-    .login-card h2 { text-align: center; margin-bottom: 24px; color: var(--primary); }
+    .login-card h2 { text-align: center; margin-bottom: 24px; color: var(--primary-color); font-size: 1.4rem; }
     .form-group { margin-bottom: 16px; }
     .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
     .form-group input, .form-group select {
-      width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; outline: none;
+      width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; outline: none; font-size: 0.9rem;
     }
     .btn-submit {
-      width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none;
-      border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s;
+      width: 100%; padding: 12px; background: var(--primary-color); color: #fff; border: none;
+      border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.95rem;
     }
     .btn-submit:hover { opacity: 0.9; }
 
     /* LAYAR DASHBOARD UTAMA */
     #dashboardArea { display: none; }
     .navbar {
-      background: #fff; border-bottom: 1px solid var(--border); padding: 12px 24px;
-      display: flex; justify-content: space-between; align-items: center;
+      background: #fff; border-bottom: 1px solid var(--border-color); padding: 12px 24px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
     }
     .nav-tabs { display: flex; gap: 12px; }
     .tab-btn {
-      padding: 8px 16px; border: none; background: transparent; cursor: pointer;
-      font-weight: 600; color: #6c757d; border-bottom: 2px solid transparent;
+      padding: 10px 16px; border: none; background: transparent; cursor: pointer;
+      font-weight: 600; color: var(--text-muted); border-bottom: 3px solid transparent; font-size: 0.95rem;
     }
-    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
     .user-info { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; }
-    .btn-logout { background: #dc3545; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+    .btn-logout { background: #dc3545; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: 500; }
 
-    .main-content { padding: 24px; max-width: 1200px; margin: 0 auto; }
+    .container { max-width: 1200px; margin: 24px auto; padding: 0 16px; }
     .page-section { display: none; }
     .page-section.active { display: block; }
 
-    /* TABEL DATA */
-    .table-container { overflow-x: auto; background: #fff; border-radius: 8px; border: 1px solid var(--border); margin-top: 16px; }
+    /* Cards Statistik */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px; margin-bottom: 24px;
+    }
+    .stat-card {
+      background-color: var(--card-bg); padding: 20px; border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03); border: 1px solid var(--border-color);
+      display: flex; align-items: center; gap: 16px;
+    }
+    .stat-icon {
+      width: 48px; height: 48px; border-radius: 10px; display: flex;
+      align-items: center; justify-content: center; font-size: 1.25rem;
+    }
+    .stat-blue { background-color: #e7f1ff; color: #0d6efd; }
+    .stat-green { background-color: #e6f4ea; color: #198754; }
+    .stat-orange { background-color: #fff4e5; color: #fd7e14; }
+    .stat-teal { background-color: #e6fffa; color: #0d9488; }
+    .stat-purple { background-color: #f3e8ff; color: #8950fc; }
+    .stat-info h3 { font-size: 1.25rem; font-weight: 700; }
+    .stat-info p { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* Area Tabel Data */
+    .content-card {
+      background-color: var(--card-bg); border-radius: 12px;
+      border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.03); padding: 20px;
+    }
+    .controls { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .search-box { flex: 1; min-width: 250px; position: relative; }
+    .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    .search-box input {
+      width: 100%; padding: 10px 12px 10px 36px; border: 1px solid #ced4da;
+      border-radius: 8px; outline: none; font-size: 0.9rem;
+    }
+    .table-container { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
-    th, td { padding: 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-    th { background: #f8f9fa; }
+    th { background-color: #f8f9fa; padding: 12px 16px; font-weight: 600; color: #495057; border-bottom: 2px solid var(--border-color); white-space: nowrap; }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); vertical-align: middle; white-space: nowrap; }
+    tr:hover { background-color: #f8f9fa; }
+
+    .badge-aktif { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background-color: #e6f4ea; color: #198754; display: inline-block; }
+    .badge-nonaktif { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background-color: #fde8e8; color: #dc3545; display: inline-block; }
+
+    .btn-file {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px;
+      border-radius: 6px; text-decoration: none; font-size: 0.75rem; font-weight: 500;
+      margin-right: 4px; border: none; cursor: pointer;
+    }
+    .btn-ktp { background-color: #e7f1ff; color: #0d6efd; }
+    .btn-ktp:hover { background-color: #cfe2ff; }
+    .btn-kta { background-color: #f3e8ff; color: #8950fc; }
+    .btn-kta:hover { background-color: #e2d2fe; }
+
+    /* Modal Styling */
+    .modal-backdrop {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(4px); z-index: 9999;
+      justify-content: center; align-items: center; padding: 20px;
+    }
+    .modal-box {
+      background: #fff; border-radius: 12px; max-width: 800px; width: 100%;
+      max-height: 90vh; display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: modalFadeIn 0.25s ease-out;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .modal-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+    .modal-header h3 { font-size: 1.1rem; font-weight: 600; }
+    .modal-close { background: transparent; border: none; font-size: 1.25rem; color: var(--text-muted); cursor: pointer; }
+    .modal-body { padding: 16px; flex: 1; background: #f8f9fa; display: flex; justify-content: center; align-items: center; min-height: 350px; }
+    .modal-body iframe { width: 100%; height: 70vh; border: none; border-radius: 8px; }
+    .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px; }
+    .btn-secondary { padding: 8px 16px; border-radius: 6px; background: #e9ecef; color: var(--text-dark); border: none; cursor: pointer; font-weight: 500; }
+    .btn-external { padding: 8px 16px; border-radius: 6px; background: var(--primary-color); color: #fff; text-decoration: none; font-weight: 500; font-size: 0.9rem; }
   </style>
 </head>
 <body>
 
-  <!-- 1. FORM LOGIN -->
+  <!-- 1. HALAMAN LOGIN -->
   <div id="loginArea" class="login-wrapper">
     <div class="login-card">
-      <h2><i class="fa-solid fa-user-shield"></i> Portal Login</h2>
+      <h2><i class="fa-solid fa-users-gear"></i> Portal Login Anggota</h2>
       <form onsubmit="handleLogin(event)">
         <div class="form-group">
           <label>Username</label>
-          <input type="text" id="loginUsername" required placeholder="Masukkan username">
+          <input type="text" id="loginUsername" required placeholder="Masukkan username Anda">
         </div>
         <div class="form-group">
           <label>Password</label>
-          <input type="password" id="loginPassword" required placeholder="Masukkan password">
+          <input type="password" id="loginPassword" required placeholder="Masukkan password Anda">
         </div>
-        <button type="submit" id="btnLogin" class="btn-submit">Masuk</button>
+        <button type="submit" id="btnLogin" class="btn-submit">Masuk ke Portal</button>
       </form>
     </div>
   </div>
 
-  <!-- 2. DASHBOARD (Satu Portal Dua Tab) -->
+  <!-- 2. DASHBOARD UTAMA -->
   <div id="dashboardArea">
     <div class="navbar">
       <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('tabData')"><i class="fa-solid fa-table"></i> Data Anggota</button>
-        <button class="tab-btn" onclick="switchTab('tabForm')"><i class="fa-solid fa-user-plus"></i> Input Anggota Baru</button>
+        <button class="tab-btn active" onclick="switchTab('tabData', event)"><i class="fa-solid fa-table"></i> Data Keanggotaan</button>
+        <button class="tab-btn" onclick="switchTab('tabForm', event)"><i class="fa-solid fa-user-plus"></i> Input Anggota Baru</button>
       </div>
       <div class="user-info">
-        <span>Halo, <b id="displayUser">-</b> (<span id="displayRole">-</span>)</span>
+        <span>Pengguna: <b id="displayUser">-</b> (<span id="displayRole">-</span>)</span>
         <button onclick="handleLogout()" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
       </div>
     </div>
 
-    <div class="main-content">
+    <div class="container">
       
-      <!-- TAB 1: TABEL DATA ANGGOTA -->
+      <!-- TAB 1: DATA KEANGGOTAAN LENGKAP -->
       <div id="tabData" class="page-section active">
-        <h3><i class="fa-solid fa-users"></i> Daftar Data Anggota</h3>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Waktu</th>
-                <th>Nama</th>
-                <th>No KTA</th>
-                <th>No HP</th>
-                <th>DPC</th>
-                <th>DPRT</th>
-                <th>Jabatan</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-          </table>
+        
+        <!-- Widgets Statistik -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon stat-blue"><i class="fa-solid fa-users"></i></div>
+            <div class="stat-info"><h3 id="statTotal">0</h3><p>Total Anggota</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-green"><i class="fa-solid fa-user-check"></i></div>
+            <div class="stat-info"><h3 id="statAktif">0</h3><p>Status Aktif</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-orange"><i class="fa-solid fa-city"></i></div>
+            <div class="stat-info"><h3 id="statDPC">0</h3><p>Total DPC</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-teal"><i class="fas fa-map-marker-alt"></i></div>
+            <div class="stat-info"><h3 id="statDPRT">0</h3><p>Total DPRT</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-purple"><i class="fa-solid fa-folder-closed"></i></div>
+            <div class="stat-info"><h3 id="statBerkas">0</h3><p>Berkas Lengkap</p></div>
+          </div>
+        </div>
+
+        <!-- Content Table -->
+        <div class="content-card">
+          <div class="controls">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Cari berdasarkan Nama, No KTA, DPC, atau DPRT...">
+            </div>
+          </div>
+
+          <div id="loading" style="text-align: center; padding: 30px;"><i class="fa-solid fa-spinner fa-spin"></i> Memuat data dari server...</div>
+
+          <div class="table-container">
+            <table id="dataTable" style="display:none;">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Waktu</th>
+                  <th>Nama Anggota</th>
+                  <th>No KTA</th>
+                  <th>No HP</th>
+                  <th>Email</th>
+                  <th>DPC</th>
+                  <th>DPRT</th>
+                  <th>Jabatan</th>
+                  <th>Status</th>
+                  <th>Berkas KTP</th>
+                  <th>Berkas KTA</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <!-- TAB 2: FORM INPUT ANGGOTA BARU -->
+      <!-- TAB 2: FORM INPUT ANGGOTA BARU TERMASUK URL BERKAS -->
       <div id="tabForm" class="page-section">
-        <div style="background: #fff; padding: 24px; border-radius: 8px; border: 1px solid var(--border); max-width: 600px;">
-          <h3><i class="fa-solid fa-user-plus"></i> Form Tambah Anggota Baru</h3>
-          <form onsubmit="handleAddMember(event)" style="margin-top: 16px;">
+        <div class="content-card" style="max-width: 650px; margin: 0 auto;">
+          <h3 style="margin-bottom: 20px;"><i class="fa-solid fa-user-plus" style="color: var(--primary-color);"></i> Form Tambah Anggota Baru</h3>
+          <form onsubmit="handleAddMember(event)">
             <div class="form-group">
-              <label>Nama Lengkap</label>
-              <input type="text" id="addNama" required>
+              <label>Nama Lengkap <span style="color:red">*</span></label>
+              <input type="text" id="addNama" required placeholder="Nama sesuai KTP">
             </div>
-            <div class="form-group">
-              <label>No KTA</label>
-              <input type="text" id="addNoKta" required>
-            </div>
-            <div class="form-group">
-              <label>No HP/WhatsApp</label>
-              <input type="text" id="addNoHp" required>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="form-group">
+                <label>No KTA <span style="color:red">*</span></label>
+                <input type="text" id="addNoKta" required placeholder="Nomor KTA">
+              </div>
+              <div class="form-group">
+                <label>No HP / WhatsApp <span style="color:red">*</span></label>
+                <input type="text" id="addNoHp" required placeholder="Contoh: 08123456789">
+              </div>
             </div>
             <div class="form-group">
               <label>Email</label>
-              <input type="email" id="addEmail">
+              <input type="email" id="addEmail" placeholder="Alamat Email (Opsional)">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="form-group">
+                <label>DPC (Kecamatan) <span style="color:red">*</span></label>
+                <input type="text" id="addDpc" required placeholder="Kecamatan">
+              </div>
+              <div class="form-group">
+                <label>DPRT (Kelurahan) <span style="color:red">*</span></label>
+                <input type="text" id="addDprt" required placeholder="Kelurahan">
+              </div>
             </div>
             <div class="form-group">
-              <label>DPC (Kecamatan)</label>
-              <input type="text" id="addDpc" required>
+              <label>Jabatan <span style="color:red">*</span></label>
+              <input type="text" id="addJabatan" required placeholder="Misal: Anggota, Pengurus DPC">
             </div>
             <div class="form-group">
-              <label>DPRT (Kelurahan)</label>
-              <input type="text" id="addDprt" required>
+              <label>Link Berkas KTP (Google Drive / URL)</label>
+              <input type="url" id="addUrlKtp" placeholder="https://drive.google.com/file/d/...">
             </div>
             <div class="form-group">
-              <label>Jabatan</label>
-              <input type="text" id="addJabatan" required>
+              <label>Link Berkas KTA (Google Drive / URL)</label>
+              <input type="url" id="addUrlKta" placeholder="https://drive.google.com/file/d/...">
             </div>
-            <button type="submit" id="btnAddMember" class="btn-submit">Simpan Data Anggota</button>
+            <button type="submit" id="btnAddMember" class="btn-submit" style="margin-top: 10px;">Simpan Data Anggota</button>
           </form>
         </div>
       </div>
@@ -163,26 +289,73 @@
     </div>
   </div>
 
-  <script>
-    // MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0UzIAjtD79G-wAJvFjP8qSF746gsq0I61CyTEsktH2xQZcVc-x4zhrbKTbN_TCD2s/exec";
+  <!-- POPUP MODAL PREVIEW BERKAS -->
+  <div id="fileModal" class="modal-backdrop" onclick="closeModalOnBackdrop(event)">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalTitle"><i class="fa-solid fa-file"></i> Pratinjau Berkas</h3>
+        <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal()">Tutup</button>
+        <a id="btnOpenNewTab" href="#" target="_blank" class="btn-external"><i class="fa-solid fa-arrow-up-right-from-square"></i> Buka Tab Baru</a>
+      </div>
+    </div>
+  </div>
 
+  <!-- POPUP MODAL EDIT DATA -->
+  <div id="editModal" class="modal-backdrop">
+    <div class="modal-box" style="max-width: 450px; padding: 20px; overflow-y: auto;">
+      <h3 style="margin-bottom: 15px;"><i class="fa-solid fa-user-pen"></i> Edit Data Anggota</h3>
+      <form onsubmit="saveEditData(event)">
+        <input type="hidden" id="editRowIndex">
+        <div class="form-group"><label>Nama Lengkap:</label><input type="text" id="editNama" required></div>
+        <div class="form-group"><label>No KTA:</label><input type="text" id="editNoKta" required></div>
+        <div class="form-group"><label>No HP / WhatsApp:</label><input type="text" id="editNoHp" required></div>
+        <div class="form-group"><label>Email:</label><input type="email" id="editEmail"></div>
+        <div class="form-group"><label>DPC (Kecamatan):</label><input type="text" id="editDpc" required></div>
+        <div class="form-group"><label>DPRT (Kelurahan):</label><input type="text" id="editDprt" required></div>
+        <div class="form-group"><label>Jabatan:</label><input type="text" id="editJabatan" required></div>
+        <div class="form-group">
+          <label>Status:</label>
+          <select id="editStatus">
+            <option value="Aktif">Aktif</option>
+            <option value="Tidak Aktif">Tidak Aktif</option>
+          </select>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top: 15px;">
+          <button type="button" onclick="closeEditModal()" class="btn-secondary">Batal</button>
+          <button type="submit" id="btnSaveEdit" class="btn-submit" style="width: auto; background:#28a745;">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // MASUKKAN SCRIPT_URL DEPLOY APPS SCRIPT ANDA DI SINI
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0UzIAjtD79G-wAJvFjP8qSF746gsq0I61CyTEsktH2xQZcVc-x4zhrbKTbN_TCD2s/exec"; 
+
+    let globalData = [];
     let currentUser = null;
 
-    // --- MANAJEMEN SESI LOG IN ---
+    // --- LOGIKA SESI LOGIN ---
     function checkSession() {
       const savedUser = localStorage.getItem('userSession');
-      if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        showDashboard();
+      if (savedUser && savedUser !== "undefined") {
+        try {
+          currentUser = JSON.parse(savedUser);
+          showDashboard();
+        } catch(e) {
+          localStorage.removeItem('userSession');
+        }
       }
     }
 
     async function handleLogin(e) {
       e.preventDefault();
       const btn = document.getElementById('btnLogin');
-      btn.innerText = "Memeriksa...";
-      btn.disabled = true;
+      btn.innerText = "Memeriksa..."; btn.disabled = true;
 
       const payload = {
         action: "login",
@@ -199,13 +372,12 @@
           localStorage.setItem('userSession', JSON.stringify(currentUser));
           showDashboard();
         } else {
-          alert(res.message);
+          alert("Gagal Login: " + res.message);
         }
       } catch (err) {
-        alert("Gagal terhubung ke server login.");
+        alert("Gagal terhubung ke server login! Pastikan URL Apps Script sudah diset ke 'Anyone'.");
       } finally {
-        btn.innerText = "Masuk";
-        btn.disabled = false;
+        btn.innerText = "Masuk ke Portal"; btn.disabled = false;
       }
     }
 
@@ -219,65 +391,116 @@
       document.getElementById('dashboardArea').style.display = 'block';
       document.getElementById('displayUser').innerText = currentUser.nama;
       document.getElementById('displayRole').innerText = currentUser.role;
-      loadTableData();
+      loadData();
     }
 
-    // --- NAVIGASI TAB ---
-    function switchTab(tabId) {
+    function switchTab(tabId, evt) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
 
-      event.currentTarget.classList.add('active');
+      evt.currentTarget.classList.add('active');
       document.getElementById(tabId).classList.add('active');
     }
 
-    // --- BACA DATA TABEL ANGGOTA ---
-    async function loadTableData() {
+    // --- BACA & RENDER DATA TABLE LENGKAP ---
+    async function loadData() {
       try {
-        const response = await fetch(`${SCRIPT_URL}?action=getData`);
-        const res = await response.json();
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("dataTable").style.display = "none";
 
-        if (res.status === 'success') {
-          const tbody = document.getElementById('tableBody');
-          tbody.innerHTML = '';
-          res.data.forEach((item, index) => {
-            tbody.innerHTML += `
-              <tr>
-                <td>${index + 1}</td>
-                <td>${item.Timestamp || '-'}</td>
-                <td><b>${item.Nama || '-'}</b></td>
-                <td>${item['No KTA'] || '-'}</td>
-                <td>${item['No HP'] || '-'}</td>
-                <td>${item.DPC || '-'}</td>
-                <td>${item.DPRT || '-'}</td>
-                <td>${item.Jabatan || '-'}</td>
-                <td>${item.Status || '-'}</td>
-              </tr>
-            `;
-          });
+        const response = await fetch(`${SCRIPT_URL}?action=getData`);
+        const resData = await response.json();
+
+        if (resData.status === 'success') {
+          globalData = resData.data;
+          renderTable(globalData);
+        } else {
+          document.getElementById("loading").innerText = "Gagal memuat data: " + resData.message;
         }
       } catch (err) {
-        console.error("Gagal memuat data anggota.");
+        document.getElementById("loading").innerText = "Error mengambil data dari server.";
       }
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+
+      let countAktif = 0;
+      let countBerkas = 0;
+      let uniqueDpc = new Set();
+      let uniqueDprt = new Set();
+
+      data.forEach((item, index) => {
+        if (item.Status === 'Aktif') countAktif++;
+        if (item.DPC && item.DPC !== '-') uniqueDpc.add(item.DPC);
+        if (item.DPRT && item.DPRT !== '-') uniqueDprt.add(item.DPRT);
+        if (item['URL KTP'] && item['URL KTA']) countBerkas++;
+
+        const row = document.createElement("tr");
+        const statusBadge = item.Status === 'Aktif' 
+          ? `<span class="badge-aktif">Aktif</span>` 
+          : `<span class="badge-nonaktif">${item.Status || '-'}</span>`;
+
+        const linkKtp = item['URL KTP'] 
+          ? `<button onclick="openModalFile('${item['URL KTP']}', 'Berkas KTP - ${item.Nama}')" class="btn-file btn-ktp"><i class="fa-solid fa-id-card"></i> KTP</button>` 
+          : '-';
+
+        const linkKta = item['URL KTA'] 
+          ? `<button onclick="openModalFile('${item['URL KTA']}', 'Berkas KTA - ${item.Nama}')" class="btn-file btn-kta"><i class="fa-solid fa-address-card"></i> KTA</button>` 
+          : '-';
+
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.Timestamp || '-'}</td>
+          <td><b>${item.Nama || '-'}</b></td>
+          <td><code>${item['No KTA'] || '-'}</code></td>
+          <td>${item['No HP'] || '-'}</td>
+          <td>${item.Email || '-'}</td>
+          <td>${item.DPC || '-'}</td>
+          <td>${item.DPRT || '-'}</td>
+          <td>${item.Jabatan || '-'}</td>
+          <td>${statusBadge}</td>
+          <td>${linkKtp}</td>
+          <td>${linkKta}</td>
+          <td>
+            <button onclick="openEditModal(${index})" style="background:#ff9800; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:500; font-size:0.8rem;">
+              <i class="fa-solid fa-pen-to-square"></i> Edit
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      // Update Statistik Widget
+      document.getElementById("statTotal").innerText = data.length;
+      document.getElementById("statAktif").innerText = countAktif;
+      document.getElementById("statDPC").innerText = uniqueDpc.size;
+      document.getElementById("statDPRT").innerText = uniqueDprt.size;
+      document.getElementById("statBerkas").innerText = countBerkas;
+
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("dataTable").style.display = "table";
     }
 
     // --- TAMBAH ANGGOTA BARU ---
     async function handleAddMember(e) {
       e.preventDefault();
       const btn = document.getElementById('btnAddMember');
-      btn.innerText = "Menyimpan...";
-      btn.disabled = true;
+      btn.innerText = "Menyimpan..."; btn.disabled = true;
 
       const payload = {
         action: "addMember",
-        authUser: currentUser.username, // Mencatat siapa yang input
+        authUser: currentUser.username,
         nama: document.getElementById('addNama').value,
         noKta: document.getElementById('addNoKta').value,
         noHp: document.getElementById('addNoHp').value,
         email: document.getElementById('addEmail').value,
         dpc: document.getElementById('addDpc').value,
         dprt: document.getElementById('addDprt').value,
-        jabatan: document.getElementById('addJabatan').value
+        jabatan: document.getElementById('addJabatan').value,
+        urlKtp: document.getElementById('addUrlKtp').value,
+        urlKta: document.getElementById('addUrlKta').value
       };
 
       try {
@@ -287,20 +510,106 @@
         if (res.status === 'success') {
           alert("Anggota berhasil ditambahkan!");
           e.target.reset();
-          switchTab('tabData');
-          loadTableData();
+          loadData();
+          switchTab('tabData', { currentTarget: document.querySelectorAll('.tab-btn')[0] });
         } else {
           alert("Gagal menambahkan: " + res.message);
         }
       } catch (err) {
-        alert("Terjadi kesalahan sistem.");
+        alert("Terjadi kesalahan sistem saat menyimpan data.");
       } finally {
-        btn.innerText = "Simpan Data Anggota";
-        btn.disabled = false;
+        btn.innerText = "Simpan Data Anggota"; btn.disabled = false;
       }
     }
 
-    // Cek Sesi saat pertama kali halaman dibuka
+    // --- LOGIKA EDIT DATA ---
+    function openEditModal(index) {
+      const item = globalData[index];
+      document.getElementById('editRowIndex').value = item.rowIndex;
+      document.getElementById('editNama').value = item.Nama || '';
+      document.getElementById('editNoKta').value = item['No KTA'] || '';
+      document.getElementById('editNoHp').value = item['No HP'] || '';
+      document.getElementById('editEmail').value = item.Email || '';
+      document.getElementById('editDpc').value = item.DPC || '';
+      document.getElementById('editDprt').value = item.DPRT || '';
+      document.getElementById('editJabatan').value = item.Jabatan || '';
+      document.getElementById('editStatus').value = item.Status || 'Aktif';
+
+      document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').style.display = 'none';
+    }
+
+    async function saveEditData(e) {
+      e.preventDefault();
+      const btnSave = document.getElementById('btnSaveEdit');
+      btnSave.disabled = true; btnSave.innerText = "Saving...";
+
+      const payload = {
+        action: "update",
+        authUser: currentUser.username,
+        rowIndex: document.getElementById('editRowIndex').value,
+        nama: document.getElementById('editNama').value,
+        noKta: document.getElementById('editNoKta').value,
+        noHp: document.getElementById('editNoHp').value,
+        email: document.getElementById('editEmail').value,
+        dpc: document.getElementById('editDpc').value,
+        dprt: document.getElementById('editDprt').value,
+        jabatan: document.getElementById('editJabatan').value,
+        status: document.getElementById('editStatus').value
+      };
+
+      try {
+        const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const res = await response.json();
+
+        if (res.status === 'success') {
+          alert('Data berhasil diperbarui!');
+          closeEditModal();
+          loadData(); 
+        } else {
+          alert('Gagal memperbarui: ' + res.message);
+        }
+      } catch (err) {
+        alert('Terjadi kesalahan koneksi!');
+      } finally {
+        btnSave.disabled = false; btnSave.innerText = "Simpan Perubahan";
+      }
+    }
+
+    // --- PREVIEW BERKAS MODAL ---
+    function openModalFile(url, title) {
+      document.getElementById("modalTitle").innerHTML = `<i class="fa-solid fa-file-lines"></i> ${title}`;
+      let embedUrl = url;
+      if(url.includes('drive.google.com/file/d/')) {
+        embedUrl = url.replace('/view?usp=drivesdk', '/preview').replace('/view', '/preview');
+      }
+      document.getElementById("modalBody").innerHTML = `<iframe src="${embedUrl}" allow="autoplay"></iframe>`;
+      document.getElementById("btnOpenNewTab").href = url;
+      document.getElementById("fileModal").style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("fileModal").style.display = "none";
+      document.getElementById("modalBody").innerHTML = "";
+    }
+
+    function closeModalOnBackdrop(e) {
+      if (e.target.id === 'fileModal') closeModal();
+    }
+
+    function filterTable() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const rows = document.querySelectorAll("#tableBody tr");
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(input) ? "" : "none";
+      });
+    }
+
+    // Jalankan pemeriksaan sesi saat halaman pertama kali dimuat
     checkSession();
   </script>
 </body>
