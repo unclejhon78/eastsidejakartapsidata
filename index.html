@@ -100,8 +100,11 @@
     td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); vertical-align: middle; white-space: nowrap; }
     tr:hover { background-color: #f8f9fa; }
 
-    .badge-aktif { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background-color: #e6f4ea; color: #198754; display: inline-block; }
-    .badge-nonaktif { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background-color: #fde8e8; color: #dc3545; display: inline-block; }
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+    .badge-anggota { background-color: #e6f4ea; color: #198754; }
+    .badge-pengurus { background-color: #e7f1ff; color: #0d6efd; }
+    .badge-nonaktif { background-color: #fff4e5; color: #fd7e14; }
+    .badge-meninggal { background-color: #fde8e8; color: #dc3545; }
 
     .btn-file {
       display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px;
@@ -173,7 +176,7 @@
 
     <div class="container">
       
-      <!-- TAB 1: DATA KEANGGOTAAN LENGKAP -->
+      <!-- TAB 1: DATA KEANGGOTAAN -->
       <div id="tabData" class="page-section active">
         
         <!-- Widgets Statistik -->
@@ -236,7 +239,7 @@
         </div>
       </div>
 
-      <!-- TAB 2: FORM INPUT ANGGOTA BARU TERMASUK URL BERKAS -->
+      <!-- TAB 2: FORM INPUT ANGGOTA BARU (DENGAN DROPDOWN DINAMIS JAKTIM) -->
       <div id="tabForm" class="page-section">
         <div class="content-card" style="max-width: 650px; margin: 0 auto;">
           <h3 style="margin-bottom: 20px;"><i class="fa-solid fa-user-plus" style="color: var(--primary-color);"></i> Form Tambah Anggota Baru</h3>
@@ -259,20 +262,39 @@
               <label>Email</label>
               <input type="email" id="addEmail" placeholder="Alamat Email (Opsional)">
             </div>
+            
+            <!-- DROPDOWN DPC & DPRT TERHUBUNG -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
               <div class="form-group">
                 <label>DPC (Kecamatan) <span style="color:red">*</span></label>
-                <input type="text" id="addDpc" required placeholder="Kecamatan">
+                <select id="addDpc" required onchange="updateDprtOptions('addDpc', 'addDprt')">
+                  <option value="">-- Pilih Kecamatan --</option>
+                </select>
               </div>
               <div class="form-group">
                 <label>DPRT (Kelurahan) <span style="color:red">*</span></label>
-                <input type="text" id="addDprt" required placeholder="Kelurahan">
+                <select id="addDprt" required disabled>
+                  <option value="">-- Pilih DPC Dulu --</option>
+                </select>
               </div>
             </div>
-            <div class="form-group">
-              <label>Jabatan <span style="color:red">*</span></label>
-              <input type="text" id="addJabatan" required placeholder="Misal: Anggota, Pengurus DPC">
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="form-group">
+                <label>Jabatan <span style="color:red">*</span></label>
+                <input type="text" id="addJabatan" required placeholder="Misal: Anggota, Pengurus DPC">
+              </div>
+              <div class="form-group">
+                <label>Status <span style="color:red">*</span></label>
+                <select id="addStatus" required>
+                  <option value="Anggota">Anggota</option>
+                  <option value="Pengurus">Pengurus</option>
+                  <option value="Non Aktif">Non Aktif</option>
+                  <option value="Meninggal">Meninggal</option>
+                </select>
+              </div>
             </div>
+
             <div class="form-group">
               <label>Link Berkas KTP (Google Drive / URL)</label>
               <input type="url" id="addUrlKtp" placeholder="https://drive.google.com/file/d/...">
@@ -306,7 +328,7 @@
 
   <!-- POPUP MODAL EDIT DATA -->
   <div id="editModal" class="modal-backdrop">
-    <div class="modal-box" style="max-width: 450px; padding: 20px; overflow-y: auto;">
+    <div class="modal-box" style="max-width: 480px; padding: 20px; overflow-y: auto;">
       <h3 style="margin-bottom: 15px;"><i class="fa-solid fa-user-pen"></i> Edit Data Anggota</h3>
       <form onsubmit="saveEditData(event)">
         <input type="hidden" id="editRowIndex">
@@ -314,16 +336,35 @@
         <div class="form-group"><label>No KTA:</label><input type="text" id="editNoKta" required></div>
         <div class="form-group"><label>No HP / WhatsApp:</label><input type="text" id="editNoHp" required></div>
         <div class="form-group"><label>Email:</label><input type="email" id="editEmail"></div>
-        <div class="form-group"><label>DPC (Kecamatan):</label><input type="text" id="editDpc" required></div>
-        <div class="form-group"><label>DPRT (Kelurahan):</label><input type="text" id="editDprt" required></div>
-        <div class="form-group"><label>Jabatan:</label><input type="text" id="editJabatan" required></div>
-        <div class="form-group">
-          <label>Status:</label>
-          <select id="editStatus">
-            <option value="Aktif">Aktif</option>
-            <option value="Tidak Aktif">Tidak Aktif</option>
-          </select>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label>DPC (Kecamatan):</label>
+            <select id="editDpc" required onchange="updateDprtOptions('editDpc', 'editDprt')">
+              <option value="">-- Pilih Kecamatan --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>DPRT (Kelurahan):</label>
+            <select id="editDprt" required>
+              <option value="">-- Pilih DPC Dulu --</option>
+            </select>
+          </div>
         </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group"><label>Jabatan:</label><input type="text" id="editJabatan" required></div>
+          <div class="form-group">
+            <label>Status:</label>
+            <select id="editStatus" required>
+              <option value="Anggota">Anggota</option>
+              <option value="Pengurus">Pengurus</option>
+              <option value="Non Aktif">Non Aktif</option>
+              <option value="Meninggal">Meninggal</option>
+            </select>
+          </div>
+        </div>
+
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top: 15px;">
           <button type="button" onclick="closeEditModal()" class="btn-secondary">Batal</button>
           <button type="submit" id="btnSaveEdit" class="btn-submit" style="width: auto; background:#28a745;">Simpan Perubahan</button>
@@ -336,11 +377,57 @@
     // MASUKKAN SCRIPT_URL DEPLOY APPS SCRIPT ANDA DI SINI
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0UzIAjtD79G-wAJvFjP8qSF746gsq0I61CyTEsktH2xQZcVc-x4zhrbKTbN_TCD2s/exec"; 
 
+    // DATA KECAMATAN & KELURAHAN WILAYAH JAKARTA TIMUR
+    const dataJaktim = {
+      "Cakung": ["Cakung Barat", "Cakung Timur", "Jatinegara", "Penggilingan", "Pulo Gebang", "Rawa Terate", "Ujung Menteng"],
+      "Cipayung": ["Bambu Apus", "Ceger", "Cilangkap", "Cipayung", "Lubis Buaya", "Munjul", "Pondok Ranggon", "Setu"],
+      "Ciracas": ["Cibubur", "Ciracas", "Kelapa Dua Wetan", "Rambutan", "Susukan"],
+      "Duren Sawit": ["Duren Sawit", "Pondok Bambu", "Pondok Kelapa", "Pondok Kopi", "Malaka Jaya", "Malaka Sari", "Klender"],
+      "Jatinegara": ["Bali Mester", "Bidara Cina", "Cipinang Cempedak", "Cipinang Besar Selatan", "Cipinang Besar Utara", "Cipinang Muara", "Kampung Melayu", "Rawa Bunga"],
+      "Kramat Jati": ["Batu Ampar", "Balekambang", "Cawang", "Cililitan", "Dukuh", "Kramat Jati", "Tengah"],
+      "Makasar": ["Cipinang Melayu", "Kebon Pala", "Makasar", "Pinang Ranti", "Halim Perdanakusuma"],
+      "Matraman": ["Kayu Manis", "Kebon Manggis", "Pal Meriam", "Pisangan Baru", "Utan Kayu Selatan", "Utan Kayu Utara"],
+      "Pasar Rebo": ["Baru", "Cijantung", "Gedong", "Kalisari", "Pekayon"],
+      "Pulo Gadung": ["Cipinang", "Jati", "Jatinegara Kaum", "Kayu Putih", "Pisangan Timur", "Pulo Gadung", "Rawamangun"]
+    };
+
     let globalData = [];
     let currentUser = null;
 
+    // Load Pilihan DPC (Kecamatan) saat pertama kali dimuat
+    function initDpcDropdowns() {
+      const addDpcSelect = document.getElementById('addDpc');
+      const editDpcSelect = document.getElementById('editDpc');
+
+      Object.keys(dataJaktim).sort().forEach(kecamatan => {
+        addDpcSelect.add(new Option(kecamatan, kecamatan));
+        editDpcSelect.add(new Option(kecamatan, kecamatan));
+      });
+    }
+
+    // Update pilihan DPRT (Kelurahan) berdasarkan DPC yang dipilih
+    function updateDprtOptions(dpcElementId, dprtElementId, selectedDprt = "") {
+      const dpcValue = document.getElementById(dpcElementId).value;
+      const dprtSelect = document.getElementById(dprtElementId);
+
+      dprtSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+
+      if (dpcValue && dataJaktim[dpcValue]) {
+        dprtSelect.disabled = false;
+        dataJaktim[dpcValue].sort().forEach(kelurahan => {
+          const opt = new Option(kelurahan, kelurahan);
+          if (kelurahan === selectedDprt) opt.selected = true;
+          dprtSelect.add(opt);
+        });
+      } else {
+        dprtSelect.disabled = true;
+        dprtSelect.innerHTML = '<option value="">-- Pilih DPC Dulu --</option>';
+      }
+    }
+
     // --- LOGIKA SESI LOGIN ---
     function checkSession() {
+      initDpcDropdowns();
       const savedUser = localStorage.getItem('userSession');
       if (savedUser && savedUser !== "undefined") {
         try {
@@ -432,15 +519,19 @@
       let uniqueDprt = new Set();
 
       data.forEach((item, index) => {
-        if (item.Status === 'Aktif') countAktif++;
+        const statusVal = item.Status || 'Anggota';
+        if (statusVal === 'Anggota' || statusVal === 'Pengurus') countAktif++;
         if (item.DPC && item.DPC !== '-') uniqueDpc.add(item.DPC);
         if (item.DPRT && item.DPRT !== '-') uniqueDprt.add(item.DPRT);
         if (item['URL KTP'] && item['URL KTA']) countBerkas++;
 
-        const row = document.createElement("tr");
-        const statusBadge = item.Status === 'Aktif' 
-          ? `<span class="badge-aktif">Aktif</span>` 
-          : `<span class="badge-nonaktif">${item.Status || '-'}</span>`;
+        // Render Badge Warna Status
+        let badgeClass = 'badge-anggota';
+        if (statusVal === 'Pengurus') badgeClass = 'badge-pengurus';
+        if (statusVal === 'Non Aktif') badgeClass = 'badge-nonaktif';
+        if (statusVal === 'Meninggal') badgeClass = 'badge-meninggal';
+
+        const statusBadge = `<span class="badge-status ${badgeClass}">${statusVal}</span>`;
 
         const linkKtp = item['URL KTP'] 
           ? `<button onclick="openModalFile('${item['URL KTP']}', 'Berkas KTP - ${item.Nama}')" class="btn-file btn-ktp"><i class="fa-solid fa-id-card"></i> KTP</button>` 
@@ -450,6 +541,7 @@
           ? `<button onclick="openModalFile('${item['URL KTA']}', 'Berkas KTA - ${item.Nama}')" class="btn-file btn-kta"><i class="fa-solid fa-address-card"></i> KTA</button>` 
           : '-';
 
+        const row = document.createElement("tr");
         row.innerHTML = `
           <td>${index + 1}</td>
           <td>${item.Timestamp || '-'}</td>
@@ -499,6 +591,7 @@
         dpc: document.getElementById('addDpc').value,
         dprt: document.getElementById('addDprt').value,
         jabatan: document.getElementById('addJabatan').value,
+        status: document.getElementById('addStatus').value,
         urlKtp: document.getElementById('addUrlKtp').value,
         urlKta: document.getElementById('addUrlKta').value
       };
@@ -510,6 +603,7 @@
         if (res.status === 'success') {
           alert("Anggota berhasil ditambahkan!");
           e.target.reset();
+          document.getElementById('addDprt').disabled = true;
           loadData();
           switchTab('tabData', { currentTarget: document.querySelectorAll('.tab-btn')[0] });
         } else {
@@ -530,10 +624,14 @@
       document.getElementById('editNoKta').value = item['No KTA'] || '';
       document.getElementById('editNoHp').value = item['No HP'] || '';
       document.getElementById('editEmail').value = item.Email || '';
-      document.getElementById('editDpc').value = item.DPC || '';
-      document.getElementById('editDprt').value = item.DPRT || '';
+      
+      const dpcVal = item.DPC || '';
+      const dprtVal = item.DPRT || '';
+      document.getElementById('editDpc').value = dpcVal;
+      updateDprtOptions('editDpc', 'editDprt', dprtVal);
+
       document.getElementById('editJabatan').value = item.Jabatan || '';
-      document.getElementById('editStatus').value = item.Status || 'Aktif';
+      document.getElementById('editStatus').value = item.Status || 'Anggota';
 
       document.getElementById('editModal').style.display = 'flex';
     }
