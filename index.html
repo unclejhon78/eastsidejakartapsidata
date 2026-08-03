@@ -116,6 +116,45 @@
     .btn-kta { background-color: #f3e8ff; color: #8950fc; }
     .btn-kta:hover { background-color: #e2d2fe; }
 
+    /* STYLES KHUSUS UPLOAD KTP & KTA */
+    .file-upload-box {
+      border: 2px dashed #0d6efd;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      background-color: #f8f9fa;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+    .file-upload-box:hover {
+      background-color: #e7f1ff;
+      border-color: #0b5ed7;
+    }
+    .file-upload-box.has-file {
+      border-style: solid;
+      border-color: #198754;
+      background-color: #e6f4ea;
+    }
+    .file-upload-box i {
+      font-size: 1.8rem;
+      color: var(--primary-color);
+      margin-bottom: 6px;
+    }
+    .file-upload-box.has-file i {
+      color: #198754;
+    }
+    .file-upload-box p {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+    .file-upload-box span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: block;
+    }
+
     /* Modal Styling */
     .modal-backdrop {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -239,7 +278,7 @@
         </div>
       </div>
 
-      <!-- TAB 2: FORM INPUT ANGGOTA BARU (DENGAN DROPDOWN DINAMIS JAKTIM) -->
+      <!-- TAB 2: FORM INPUT ANGGOTA BARU -->
       <div id="tabForm" class="page-section">
         <div class="content-card" style="max-width: 650px; margin: 0 auto;">
           <h3 style="margin-bottom: 20px;"><i class="fa-solid fa-user-plus" style="color: var(--primary-color);"></i> Form Tambah Anggota Baru</h3>
@@ -295,14 +334,29 @@
               </div>
             </div>
 
-            <div class="form-group">
-              <label>Link Berkas KTP (Google Drive / URL)</label>
-              <input type="url" id="addUrlKtp" placeholder="https://drive.google.com/file/d/...">
+            <!-- KOLEKSI INPUT UPLOAD FILE KTP & KTA BARU -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+              <div class="form-group">
+                <label>Unggah Berkas KTP</label>
+                <div class="file-upload-box" id="boxKtp" onclick="document.getElementById('fileKtp').click()">
+                  <i class="fa-solid fa-cloud-arrow-up" id="iconKtp"></i>
+                  <p id="labelKtp">Klik / Seret Foto KTP</p>
+                  <span>Maksimal 2MB (JPG, PNG, PDF)</span>
+                  <input type="file" id="fileKtp" accept="image/*,.pdf" style="display: none;" onchange="handleFileChange(this, 'labelKtp', 'boxKtp', 'iconKtp')">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Unggah Berkas KTA</label>
+                <div class="file-upload-box" id="boxKta" onclick="document.getElementById('fileKta').click()">
+                  <i class="fa-solid fa-cloud-arrow-up" id="iconKta"></i>
+                  <p id="labelKta">Klik / Seret Foto KTA</p>
+                  <span>Maksimal 2MB (JPG, PNG, PDF)</span>
+                  <input type="file" id="fileKta" accept="image/*,.pdf" style="display: none;" onchange="handleFileChange(this, 'labelKta', 'boxKta', 'iconKta')">
+                </div>
+              </div>
             </div>
-            <div class="form-group">
-              <label>Link Berkas KTA (Google Drive / URL)</label>
-              <input type="url" id="addUrlKta" placeholder="https://drive.google.com/file/d/...">
-            </div>
+
             <button type="submit" id="btnAddMember" class="btn-submit" style="margin-top: 10px;">Simpan Data Anggota</button>
           </form>
         </div>
@@ -423,6 +477,47 @@
         dprtSelect.disabled = true;
         dprtSelect.innerHTML = '<option value="">-- Pilih DPC Dulu --</option>';
       }
+    }
+
+    // --- MANAJEMEN UPLOAD FILE ---
+    function handleFileChange(input, labelId, boxId, iconId) {
+      const label = document.getElementById(labelId);
+      const box = document.getElementById(boxId);
+      const icon = document.getElementById(iconId);
+
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 2 * 1024 * 1024) {
+          alert("Ukuran file terlalu besar! Maksimal 2MB.");
+          input.value = "";
+          return;
+        }
+        label.innerText = file.name;
+        box.classList.add("has-file");
+        icon.className = "fa-solid fa-circle-check";
+      } else {
+        label.innerText = labelId === 'labelKtp' ? "Klik / Seret Foto KTP" : "Klik / Seret Foto KTA";
+        box.classList.remove("has-file");
+        icon.className = "fa-solid fa-cloud-arrow-up";
+      }
+    }
+
+    // Helper Konversi File ke Base64
+    function convertFileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) {
+          resolve(null);
+          return;
+        }
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve({
+          base64: reader.result.split(',')[1],
+          type: file.type,
+          name: file.name
+        });
+        reader.onerror = error => reject(error);
+      });
     }
 
     // --- LOGIKA SESI LOGIN ---
@@ -575,34 +670,50 @@
       document.getElementById("dataTable").style.display = "table";
     }
 
-    // --- TAMBAH ANGGOTA BARU ---
+    // --- TAMBAH ANGGOTA BARU BESERTA UPLOAD FILE ---
     async function handleAddMember(e) {
       e.preventDefault();
       const btn = document.getElementById('btnAddMember');
-      btn.innerText = "Menyimpan..."; btn.disabled = true;
-
-      const payload = {
-        action: "addMember",
-        authUser: currentUser.username,
-        nama: document.getElementById('addNama').value,
-        noKta: document.getElementById('addNoKta').value,
-        noHp: document.getElementById('addNoHp').value,
-        email: document.getElementById('addEmail').value,
-        dpc: document.getElementById('addDpc').value,
-        dprt: document.getElementById('addDprt').value,
-        jabatan: document.getElementById('addJabatan').value,
-        status: document.getElementById('addStatus').value,
-        urlKtp: document.getElementById('addUrlKtp').value,
-        urlKta: document.getElementById('addUrlKta').value
-      };
+      btn.innerText = "Mengunggah Berkas & Menyimpan..."; btn.disabled = true;
 
       try {
+        const fileKtpInput = document.getElementById('fileKtp').files[0];
+        const fileKtaInput = document.getElementById('fileKta').files[0];
+
+        // Konversi berkas ke format Base64
+        const ktpFileData = await convertFileToBase64(fileKtpInput);
+        const ktaFileData = await convertFileToBase64(fileKtaInput);
+
+        const payload = {
+          action: "addMember",
+          authUser: currentUser.username,
+          nama: document.getElementById('addNama').value,
+          noKta: document.getElementById('addNoKta').value,
+          noHp: document.getElementById('addNoHp').value,
+          email: document.getElementById('addEmail').value,
+          dpc: document.getElementById('addDpc').value,
+          dprt: document.getElementById('addDprt').value,
+          jabatan: document.getElementById('addJabatan').value,
+          status: document.getElementById('addStatus').value,
+          fileKtp: ktpFileData,
+          fileKta: ktaFileData
+        };
+
         const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
         const res = await response.json();
 
         if (res.status === 'success') {
-          alert("Anggota berhasil ditambahkan!");
+          alert("Anggota dan berkas berhasil disimpan!");
           e.target.reset();
+          
+          // Reset Tampilan Tombol Upload
+          document.getElementById('labelKtp').innerText = "Klik / Seret Foto KTP";
+          document.getElementById('boxKtp').classList.remove("has-file");
+          document.getElementById('iconKtp').className = "fa-solid fa-cloud-arrow-up";
+          document.getElementById('labelKta').innerText = "Klik / Seret Foto KTA";
+          document.getElementById('boxKta').classList.remove("has-file");
+          document.getElementById('iconKta').className = "fa-solid fa-cloud-arrow-up";
+
           document.getElementById('addDprt').disabled = true;
           loadData();
           switchTab('tabData', { currentTarget: document.querySelectorAll('.tab-btn')[0] });
@@ -610,7 +721,7 @@
           alert("Gagal menambahkan: " + res.message);
         }
       } catch (err) {
-        alert("Terjadi kesalahan sistem saat menyimpan data.");
+        alert("Terjadi kesalahan sistem saat mengunggah file atau menyimpan data.");
       } finally {
         btn.innerText = "Simpan Data Anggota"; btn.disabled = false;
       }
@@ -707,7 +818,7 @@
       });
     }
 
-    // Jalankan pemeriksaan sesi saat halaman pertama kali dimuat
+    // Jalankan pemeriksaan sesi saat halaman dimuat
     checkSession();
   </script>
 </body>
